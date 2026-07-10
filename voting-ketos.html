@@ -1,0 +1,387 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Voting Pemilihan Ketua OSIS</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent: #f59e0b;
+      --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at top left, rgba(59,130,246,0.16), transparent 24%),
+                  radial-gradient(circle at bottom right, rgba(251,146,60,0.14), transparent 25%),
+                  linear-gradient(135deg, #eff6ff 0%, var(--bg) 100%);
+      color: var(--text);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.5;
+      z-index: 0;
+    }
+
+    body::before {
+      width: 360px;
+      height: 360px;
+      top: -120px;
+      left: -80px;
+      background: rgba(56, 189, 248, 0.35);
+    }
+
+    body::after {
+      width: 420px;
+      height: 420px;
+      bottom: -150px;
+      right: -100px;
+      background: rgba(251, 191, 36, 0.22);
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 32px; position: relative; z-index: 1; }
+    .hero {
+      background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+      color: white; border-radius: 28px; padding: 40px; box-shadow: var(--shadow); margin-bottom: 30px;
+    }
+    .hero h1 { margin: 0 0 14px; font-size: 2.4rem; line-height: 1.1; }
+    .hero p { margin: 0; font-size: 1.05rem; opacity: 0.95; max-width: 760px; line-height: 1.8; }
+    .status {
+      margin-top: 18px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.28);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.6);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+      font-weight: 700;
+      font-size: 1rem;
+      color: #ffffff;
+      background-image: linear-gradient(135deg, rgba(56,189,248,0.9), rgba(59,130,246,0.85));
+    }
+    .status::before {
+      content: "✔";
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+      color: #1d4ed8;
+      font-size: 0.95rem;
+      font-weight: 800;
+    }
+    .status.status--idle {
+      background-image: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(243,244,246,0.95));
+      color: #334155;
+      border: 1px solid rgba(148,163,184,0.45);
+      box-shadow: none;
+    }
+    .status.status--idle::before {
+      content: "ℹ";
+      background: rgba(59,130,246,0.12);
+      color: #2563eb;
+    }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+    .candidate-card {
+      background: var(--card); border-radius: 24px; padding: 28px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 18px;
+    }
+    .candidate-card h3 { margin: 0; font-size: 1.55rem; }
+    .candidate-photo {
+      width: 100%; aspect-ratio: 16 / 10; min-height: 260px; border-radius: 18px; overflow: hidden; background: #eef2ff; display: flex; align-items: center; justify-content: center;
+    }
+    .candidate-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .meta { color: var(--muted); font-size: 1rem; }
+    .vision { line-height: 1.8; color: var(--text); font-size: 1rem; }
+    .vote-box { margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; }
+    button { border: none; background: var(--primary); color: white; padding: 14px 22px; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 1rem; transition: transform 0.2s ease, background 0.2s ease; }
+    button:hover { transform: translateY(-1px); background: var(--primary-dark); }
+    button:disabled { background: #9ca3af; cursor: not-allowed; transform: none; }
+    .secondary-btn { background: var(--accent); }
+    .secondary-btn:hover { background: #d97706; }
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.94);
+      z-index: 1000;
+      background: linear-gradient(135deg, #2563eb, #4f46e5);
+      color: white;
+      padding: 28px 32px;
+      border-radius: 24px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+      max-width: 430px;
+      width: min(92vw, 430px);
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.35s ease;
+    }
+    .popup.show {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+      pointer-events: auto;
+    }
+    .popup__title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .popup__btn {
+      margin-top: 14px;
+      border: none;
+      background: white;
+      color: #2563eb;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+    .login-card {
+      background: white;
+      border-radius: 24px;
+      padding: 30px;
+      width: min(100%, 420px);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+    }
+    .login-card h2 { margin: 0 0 8px; color: #111827; }
+    .login-card p { margin: 0 0 18px; color: #6b7280; line-height: 1.6; }
+    .login-field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .login-field label { font-weight: 700; color: #374151; }
+    .login-field input { padding: 12px 14px; border: 1px solid #d1d5db; border-radius: 12px; font-size: 1rem; }
+    .login-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .login-actions button { flex: 1; }
+    .login-error { margin-top: 12px; color: #dc2626; font-weight: 600; min-height: 22px; }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 1.6rem; }
+      .container { padding: 16px; }
+    }
+  </style>
+  <script>
+    if (window.location.protocol === 'file:') {
+      const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+      window.location.replace(`http://localhost:8000/${currentPath}`);
+    }
+  </script>
+</head>
+<body>
+  <div class="popup" id="votePopup" role="status" aria-live="polite">
+    <div class="popup__title">Terima kasih!</div>
+    <div id="popupMessage"></div>
+    <button type="button" class="popup__btn" onclick="hidePopup()">OK</button>
+  </div>
+
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <h2>Login Voting</h2>
+      <p>Masukkan akun yang sudah disediakan untuk melanjutkan voting.</p>
+      <div class="login-field">
+        <label for="loginUsername">Username</label>
+        <input id="loginUsername" type="text" placeholder="Masukkan username" />
+      </div>
+      <div class="login-field">
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" placeholder="Masukkan password" />
+      </div>
+      <div class="login-actions">
+        <button type="button" onclick="handleLogin()">Masuk</button>
+      </div>
+      <div class="login-error" id="loginError"></div>
+    </div>
+  </div>
+
+  <div class="container" id="mainContent" style="display:none;">
+    <section class="hero">
+      <h1>Voting Pemilihan Ketua OSIS</h1>
+      <p>Silakan pilih calon ketos terbaik untuk masa depan sekolah. Setiap suara hanya bisa dipilih sekali, lalu bisa direset untuk pemungutan ulang.</p>
+      <div class="status" id="voteStatus">Belum ada suara yang Anda pilih</div>
+      <div style="margin-top: 16px;">
+        <button type="button" class="secondary-btn" onclick="resetVote()">Reset Voting</button>
+      </div>
+    </section>
+
+    <section class="grid" id="candidateList"></section>
+  </div>
+
+  <script>
+    const candidateStorageKey = 'ketos-candidates';
+    const voteStorageKey = 'ketos-vote-state';
+    const votedAccountsKey = 'ketos-voted-accounts';
+    const validUsersKey = 'ketos-valid-users';
+    let currentUsername = null;
+
+    function generateValidUsers() {
+      const users = {};
+      for (let i = 1; i <= 200; i++) {
+        const resiNum = String(i).padStart(3, '0');
+        const username = `RES${resiNum}`;
+        const password = Math.random().toString(36).substring(2, 6).toUpperCase() + String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+        users[username] = password;
+      }
+      return users;
+    }
+
+    // Load accounts from localStorage or generate new ones
+    let validUsers = JSON.parse(localStorage.getItem(validUsersKey) || 'null');
+    if (!validUsers) {
+      validUsers = generateValidUsers();
+      localStorage.setItem(validUsersKey, JSON.stringify(validUsers));
+    }
+
+    const defaultCandidates = [
+      { id: 1, name: 'Alya Putri', className: 'Kelas XI IPA 1', vision: 'Visi: menciptakan sekolah yang lebih aktif, bersih, dan penuh semangat kebersamaan.', label: 'Alya', photo: '/candidate-1.svg' },
+      { id: 2, name: 'Raka Pratama', className: 'Kelas XI IPS 2', vision: 'Visi: memperkuat kegiatan siswa, literasi, dan inovasi dalam setiap program sekolah.', label: 'Raka', photo: '/candidate-2.svg' },
+      { id: 3, name: 'Nia Ramadhani', className: 'Kelas XI IPA 2', vision: 'Visi: mengembangkan kegiatan sekolah yang lebih kreatif, disiplin, dan penuh partisipasi siswa.', label: 'Nia', photo: '/candidate-3.svg' }
+    ];
+
+    let candidates = JSON.parse(localStorage.getItem(candidateStorageKey) || 'null') || defaultCandidates;
+    let state = JSON.parse(localStorage.getItem(voteStorageKey) || '{"votes":[0,0,0],"chosen":null}');
+
+    if (!Array.isArray(state.votes)) {
+      state.votes = [0, 0, 0];
+    }
+    while (state.votes.length < candidates.length) {
+      state.votes.push(0);
+    }
+    if (state.votes.length > candidates.length) {
+      state.votes = state.votes.slice(0, candidates.length);
+    }
+
+    function getPhotoSrc(photo, id) {
+      if (!photo) return `/candidate-${id}.svg`;
+      if (photo.startsWith('data:') || photo.startsWith('http://') || photo.startsWith('https://') || photo.startsWith('/')) {
+        return photo;
+      }
+      return `/${photo}`;
+    }
+
+    function render() {
+      const candidateList = document.getElementById('candidateList');
+      candidateList.innerHTML = candidates.map((candidate) => `
+        <article class="candidate-card">
+          <div class="candidate-photo">
+            <img src="${getPhotoSrc(candidate.photo, candidate.id)}" alt="Foto ${candidate.name}" onerror="this.onerror=null; this.src='/candidate-${candidate.id}.svg'" />
+          </div>
+          <h3>${candidate.name}</h3>
+          <div class="meta">${candidate.className} • Nomor ${candidate.id}</div>
+          <div class="vision">${candidate.vision}</div>
+          <div class="vote-box">
+            <button type="button" onclick="voteFor(${candidate.id})" ${state.chosen ? 'disabled' : ''}>${state.chosen === candidate.id ? 'Sudah Dipilih' : `Pilih ${candidate.name}`}</button>
+          </div>
+        </article>
+      `).join('');
+
+      const voteStatus = document.getElementById('voteStatus');
+      const text = state.chosen ? `Kamu sudah memilih calon nomor ${state.chosen}. 🌟` : 'Belum ada suara yang Anda pilih';
+      voteStatus.textContent = text;
+      voteStatus.classList.toggle('status--idle', !state.chosen);
+      voteStatus.classList.remove('status--animated');
+      void voteStatus.offsetWidth;
+      voteStatus.classList.add('status--animated');
+    }
+
+    function showPopup(message) {
+      const popup = document.getElementById('votePopup');
+      const popupMessage = document.getElementById('popupMessage');
+      popupMessage.textContent = message;
+      popup.classList.add('show');
+      clearTimeout(showPopup.timeoutId);
+      showPopup.timeoutId = setTimeout(() => {
+        popup.classList.remove('show');
+      }, 4000);
+    }
+
+    function hidePopup() {
+      document.getElementById('votePopup').classList.remove('show');
+      clearTimeout(showPopup.timeoutId);
+    }
+
+    function handleLogin() {
+      const username = document.getElementById('loginUsername').value.trim().toUpperCase();
+      const password = document.getElementById('loginPassword').value;
+      const errorEl = document.getElementById('loginError');
+
+      if (validUsers[username] && validUsers[username] === password) {
+        currentUsername = username;
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        errorEl.textContent = '';
+      } else {
+        errorEl.textContent = 'Username atau password salah.';
+      }
+    }
+
+    function voteFor(candidateId) {
+      if (state.chosen) {
+        showPopup('Anda sudah memberikan suara sebelumnya.');
+        return;
+      }
+
+      const candidateIndex = candidates.findIndex((candidate) => candidate.id === candidateId);
+      if (candidateIndex === -1) {
+        return;
+      }
+
+      state.votes[candidateIndex] += 1;
+      state.chosen = candidateId;
+      localStorage.setItem(voteStorageKey, JSON.stringify(state));
+      
+      // Track which account has voted
+      if (currentUsername) {
+        const votedAccounts = JSON.parse(localStorage.getItem(votedAccountsKey) || '[]');
+        if (!votedAccounts.includes(currentUsername)) {
+          votedAccounts.push(currentUsername);
+          localStorage.setItem(votedAccountsKey, JSON.stringify(votedAccounts));
+        }
+      }
+      
+      render();
+      showPopup(`Terima kasih, Anda telah memilih ${candidates[candidateIndex].name}.`);
+    }
+
+    function resetVote() {
+      state = { votes: [0, 0, 0], chosen: null };
+      localStorage.removeItem(voteStorageKey);
+      render();
+      alert('Voting telah direset. Silakan pilih lagi.');
+    }
+
+    render();
+  </script>
+</body>
+</html>

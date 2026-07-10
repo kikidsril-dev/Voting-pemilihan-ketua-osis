@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Akun Voting Ketos</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      padding: 30px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #764ba2;
+    }
+
+    button.secondary {
+      background: #888;
+    }
+
+    button.secondary:hover {
+      background: #555;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    thead {
+      background: #f5f5f5;
+    }
+
+    th {
+      padding: 12px;
+      text-align: left;
+      color: #333;
+      font-weight: 600;
+      border-bottom: 2px solid #ddd;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+
+    tr:hover {
+      background: #f9f9f9;
+    }
+
+    tr.voted {
+      background-color: #e3f2fd;
+    }
+
+    tr.voted:hover {
+      background-color: #bbdefb;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-voted {
+      background-color: #81c784;
+      color: white;
+    }
+
+    .status-pending {
+      background-color: #fbc02d;
+      color: #333;
+    }
+
+    .no {
+      width: 50px;
+      text-align: center;
+      color: #999;
+    }
+
+    .username {
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .password {
+      font-family: 'Courier New', monospace;
+      color: #764ba2;
+    }
+
+    .copy-btn {
+      padding: 4px 8px;
+      font-size: 12px;
+      background: #ddd;
+      color: #333;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: #bbb;
+    }
+
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      color: #1565c0;
+      font-size: 14px;
+    }
+
+    .info-box strong {
+      color: #0d47a1;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #999;
+      margin-top: 5px;
+    }
+
+    .search-box {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .search-box input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 30px;
+      color: #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📋 Daftar Akun Voting Pemilihan Ketua OSIS</h1>
+    <p class="subtitle">Semua akun yang tersedia untuk voting</p>
+
+    <div class="info-box">
+      <strong>⚠️ Catatan Penting:</strong> Setiap akun hanya bisa login satu kali dan memilih satu kandidat. Catat nomor resi dan password Anda dengan baik!
+    </div>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-value" id="totalAccounts">200</div>
+        <div class="stat-label">Total Akun</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="votedCount">0</div>
+        <div class="stat-label">Sudah Memilih</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="pendingCount">200</div>
+        <div class="stat-label">Belum Memilih</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="searchCount">200</div>
+        <div class="stat-label">Hasil Pencarian</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button onclick="copyAllAccounts()">📋 Salin Semua (CSV)</button>
+      <button class="secondary" onclick="downloadCSV()">⬇️ Download CSV</button>
+      <button class="secondary" onclick="printTable()">🖨️ Cetak</button>
+      <button class="secondary" onclick="refreshAccounts()">🔄 Refresh Akun</button>
+    </div>
+
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Cari nomor resi (contoh: RES001)..." onkeyup="filterTable()">
+    </div>
+
+    <div class="table-wrapper">
+      <table id="accountsTable">
+        <thead>
+          <tr>
+            <th class="no">No</th>
+            <th>Nomor Resi</th>
+            <th>Password</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+      </table>
+    </div>
+
+    <div id="noResults" class="no-results" style="display: none;">
+      Tidak ada akun yang sesuai dengan pencarian
+    </div>
+  </div>
+
+  <script>
+    let allAccounts = [];
+
+    function generateValidUsers() {
+      const users = [];
+      for (let i = 1; i <= 200; i++) {
+        const resiNum = String(i).padStart(3, '0');
+        const username = `RES${resiNum}`;
+        const password = Math.random().toString(36).substring(2, 6).toUpperCase() + String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+        users.push({ no: i, username, password });
+      }
+      return users;
+    }
+
+    function generateAndCacheAccounts() {
+      // Load from localStorage if exists
+      const cached = localStorage.getItem('ketos-valid-users');
+      if (cached) {
+        const usersObj = JSON.parse(cached);
+        // Convert object to array format for display
+        return Object.entries(usersObj).map((entry, index) => ({
+          no: index + 1,
+          username: entry[0],
+          password: entry[1]
+        }));
+      }
+      
+      // Generate new accounts
+      const usersObj = {};
+      const usersList = [];
+      for (let i = 1; i <= 200; i++) {
+        const resiNum = String(i).padStart(3, '0');
+        const username = `RES${resiNum}`;
+        const password = Math.random().toString(36).substring(2, 6).toUpperCase() + String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+        usersObj[username] = password;
+        usersList.push({ no: i, username, password });
+      }
+      localStorage.setItem('ketos-valid-users', JSON.stringify(usersObj));
+      return usersList;
+    }
+
+    function renderTable(accounts = allAccounts) {
+      const tbody = document.getElementById('tableBody');
+      const noResults = document.getElementById('noResults');
+      const searchCount = document.getElementById('searchCount');
+      const votedCount = document.getElementById('votedCount');
+      const pendingCount = document.getElementById('pendingCount');
+      const votedAccounts = JSON.parse(localStorage.getItem('ketos-voted-accounts') || '[]');
+
+      tbody.innerHTML = '';
+
+      if (accounts.length === 0) {
+        noResults.style.display = 'block';
+        searchCount.textContent = '0';
+        return;
+      }
+
+      noResults.style.display = 'none';
+      searchCount.textContent = accounts.length;
+
+      let votedInResults = 0;
+      accounts.forEach(account => {
+        const hasVoted = votedAccounts.includes(account.username);
+        if (hasVoted) votedInResults++;
+        const statusClass = hasVoted ? 'voted' : '';
+        const statusBadge = hasVoted 
+          ? '<span class="status-badge status-voted">✓ Sudah Memilih</span>'
+          : '<span class="status-badge status-pending">⏳ Belum Memilih</span>';
+        
+        const row = document.createElement('tr');
+        row.className = statusClass;
+        row.innerHTML = `
+          <td class="no">${account.no}</td>
+          <td><span class="username">${account.username}</span></td>
+          <td><span class="password">${account.password}</span></td>
+          <td>${statusBadge}</td>
+          <td>
+            <button class="copy-btn" onclick="copyToClipboard('${account.username}:${account.password}')">Salin</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      // Update stats
+      votedCount.textContent = votedAccounts.length;
+      pendingCount.textContent = allAccounts.length - votedAccounts.length;
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('✅ Berhasil disalin ke clipboard:\n' + text);
+      }).catch(() => {
+        alert('❌ Gagal menyalin ke clipboard');
+      });
+    }
+
+    function copyAllAccounts() {
+      const csv = 'No,Nomor Resi,Password\n' + 
+        allAccounts.map(a => `${a.no},"${a.username}","${a.password}"`).join('\n');
+      navigator.clipboard.writeText(csv).then(() => {
+        alert('✅ Semua akun berhasil disalin ke clipboard dalam format CSV');
+      }).catch(() => {
+        alert('❌ Gagal menyalin ke clipboard');
+      });
+    }
+
+    function downloadCSV() {
+      const csv = 'No,Nomor Resi,Password\n' + 
+        allAccounts.map(a => `${a.no},"${a.username}","${a.password}"`).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'daftar-akun-ketos-voting.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function printTable() {
+      window.print();
+    }
+
+    function filterTable() {
+      const searchInput = document.getElementById('searchInput').value.toUpperCase();
+      const filtered = allAccounts.filter(account =>
+        account.username.includes(searchInput) || 
+        account.password.includes(searchInput) ||
+        String(account.no).includes(searchInput)
+      );
+      renderTable(filtered);
+    }
+
+    function refreshAccounts() {
+      const confirmed = confirm('Yakin ingin meng-generate akun baru?\n\nSemua akun lama akan diganti dan status voting akan direset.');
+      if (!confirmed) {
+        return;
+      }
+
+      // Clear the stored accounts to generate new ones
+      localStorage.removeItem('ketos-valid-users');
+      localStorage.removeItem('ketos-voted-accounts');
+      allAccounts = generateAndCacheAccounts();
+      renderTable();
+      alert('✅ Akun-akun baru telah di-generate. Perhatian: Password berbeda dari yang sebelumnya!');
+    }
+
+    function init() {
+      allAccounts = generateAndCacheAccounts();
+      renderTable();
+      document.getElementById('totalAccounts').textContent = allAccounts.length;
+      
+      // Auto-refresh voted status every 2 seconds
+      setInterval(() => {
+        renderTable();
+      }, 2000);
+    }
+
+    init();
+  </script>
+</body>
+</html>
